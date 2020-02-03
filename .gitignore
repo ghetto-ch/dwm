@@ -47,6 +47,7 @@ patches
 *.su
 *.idb
 *.pdb
+.clangd
 
 # Kernel Module Compile Results
 *.mod*
