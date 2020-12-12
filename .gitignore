@@ -48,6 +48,7 @@ patches
 *.idb
 *.pdb
 .clangd
+.cache
 
 # Kernel Module Compile Results
 *.mod*
