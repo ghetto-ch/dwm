@@ -1,7 +1,8 @@
 /* See LICENSE file for copyright and license details. */
 
 /* appearance */
-static const unsigned int borderpx  = 3;        /* border pixel of windows */
+static const unsigned int borderpx  = 0;        /* border pixel of windows */
+static const unsigned int gappx		= 5;		/* gaps between windows */
 static const unsigned int snap      = 32;       /* snap pixel */
 static const int swallowfloating    = 0;        /* 1 means swallow floating windows by default */
 static const unsigned int systraypinning = 0;   /* 0: sloppy systray follows selected monitor, >0: pin systray to monitor X */
@@ -10,8 +11,8 @@ static const int systraypinningfailfirst = 1;   /* 1: if pinning fails, display 
 static const int showsystray        = 1;     /* 0 means no systray */
 static const int showbar            = 0;        /* 0 means no bar */
 static const int topbar             = 1;        /* 0 means bottom bar */
-static const char *fonts[]          = { "monospace:size=10" };
-static const char dmenufont[]       = "monospace:size=10";
+static const char *fonts[]          = { "Hack Nerd Font Mono:pixelsize=16:antialias=true:autohint=true" };
+static const char dmenufont[]       = "Hack Nerd Font Mono:pixelsize=16:antialias=true:autohint=true";
 static const char col_gray1[]       = "#222222";
 static const char col_gray2[]       = "#444444";
 static const char col_gray3[]       = "#bbbbbb";
@@ -74,6 +75,8 @@ static Key keys[] = {
 	{ MODKEY,                       XK_b,      togglebar,      {0} },
 	{ MODKEY,                       XK_j,      focusstack,     {.i = +1 } },
 	{ MODKEY,                       XK_k,      focusstack,     {.i = -1 } },
+	{ MODKEY|ShiftMask,             XK_j,      rotatemaster,    {.i = +1 } },
+	{ MODKEY|ShiftMask,             XK_k,      rotatemaster,    {.i = -1 } },
 	{ MODKEY,                       XK_i,      incnmaster,     {.i = +1 } },
 	{ MODKEY,                       XK_d,      incnmaster,     {.i = -1 } },
 	{ MODKEY,                       XK_h,      setmfact,       {.f = -0.05} },

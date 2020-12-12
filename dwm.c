@@ -193,6 +193,8 @@ static void detachstack(Client *c);
 static Monitor *dirtomon(int dir);
 static void drawbar(Monitor *m);
 static void drawbars(void);
+static void enqueue(Client *c);
+static void enqueuestack(Client *c);
 static void enternotify(XEvent *e);
 static void expose(XEvent *e);
 static void focus(Client *c);
@@ -227,6 +229,7 @@ static void resizeclient(Client *c, int x, int y, int w, int h);
 static void resizemouse(const Arg *arg);
 static void resizerequest(XEvent *e);
 static void restack(Monitor *m);
+static void rotatemaster(const Arg *arg);
 static void run(void);
 static void scan(void);
 static int sendevent(Window w, Atom proto, int m, long d0, long d1, long d2, long d3, long d4);
@@ -929,6 +932,28 @@ drawbars(void)
 }
 
 void
+enqueue(Client *c)
+{
+	Client *l;
+	for (l = c->mon->clients; l && l->next; l = l->next);
+	if (l) {
+		l->next = c;
+		c->next = NULL;
+	}
+}
+
+void
+enqueuestack(Client *c)
+{
+	Client *l;
+	for (l = c->mon->stack; l && l->snext; l = l->snext);
+	if (l) {
+		l->snext = c;
+		c->snext = NULL;
+	}
+}
+
+void
 enternotify(XEvent *e)
 {
 	Client *c;
@@ -1626,6 +1651,37 @@ restack(Monitor *m)
 }
 
 void
+rotatemaster(const Arg *arg)
+{
+	Client *c = NULL, *f;
+
+	if (!selmon->sel)
+		return;
+	if (arg->i > 0) {
+		for (c = nexttiled(selmon->clients); c && nexttiled(c->next); c = nexttiled(c->next));
+		if (c){
+			detach(c);
+			attach(c);
+			detachstack(c);
+			attachstack(c);
+		}
+	} else {
+		if ((c = nexttiled(selmon->clients))){
+			detach(c);
+			enqueue(c);
+			detachstack(c);
+			enqueuestack(c);
+		}
+	}
+	if (c){
+		arrange(selmon);
+		f = nexttiled(selmon->clients);
+		focus(f);
+		restack(selmon);
+	}
+}
+
+void
 run(void)
 {
 	XEvent ev;
@@ -1970,26 +2026,29 @@ tagmon(const Arg *arg)
 void
 tile(Monitor *m)
 {
-	unsigned int i, n, h, mw, my, ty;
+	unsigned int i, n, h, mw, my, ty, ns;
 	Client *c;
 
 	for (n = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), n++);
 	if (n == 0)
 		return;
 
-	if (n > m->nmaster)
+	if (n > m->nmaster) {
 		mw = m->nmaster ? m->ww * m->mfact : 0;
-	else
+		ns = m->nmaster > 0 ? 2 : 1;
+	} else {
 		mw = m->ww;
-	for (i = my = ty = 0, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
+		ns = 1;
+	}
+	for(i = 0, my = ty = gappx, c = nexttiled(m->clients); c; c = nexttiled(c->next), i++)
 		if (i < m->nmaster) {
-			h = (m->wh - my) / (MIN(n, m->nmaster) - i);
-			resize(c, m->wx, m->wy + my, mw - (2*c->bw), h - (2*c->bw), 0);
-			my += HEIGHT(c);
+			h = (m->wh - my) / (MIN(n, m->nmaster) - i) - gappx;
+			resize(c, m->wx + gappx, m->wy + my, mw - (2*c->bw) - gappx*(5-ns)/2, h - (2*c->bw), False);
+			my += HEIGHT(c) + gappx;
 		} else {
-			h = (m->wh - ty) / (n - i);
-			resize(c, m->wx + mw, m->wy + ty, m->ww - mw - (2*c->bw), h - (2*c->bw), 0);
-			ty += HEIGHT(c);
+			h = (m->wh - ty) / (n - i) - gappx;
+			resize(c, m->wx + mw + gappx/ns, m->wy + ty, m->ww - mw - (2*c->bw) - gappx*(5-ns)/2, h - (2*c->bw), False);
+			ty += HEIGHT(c) + gappx;
 		}
 }
 
