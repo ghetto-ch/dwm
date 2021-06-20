@@ -37,7 +37,8 @@ static const Rule rules[] = {
 	{ "Qalculate-gtk",                 NULL,       NULL,           0,            1,           0,         0,        -1 },
 	{ "Alacritty",                     NULL,       NULL,           0,            0,           1,         0,        -1 },
 	{ NULL,                            NULL,       "Event Tester", 0,            0,           0,         1,        -1 }, /* xev */
-	{ "Microsoft Teams - Preview",     NULL,       NULL,           1 << 7,       1,           0,         0,        -1 },
+	{ "Microsoft Teams - Preview",     NULL,       NULL,           1 << 7,       0,           0,         0,        -1 },
+	{ "TeamViewer",                    NULL,       NULL,           1 << 6,       0,           0,         0,        -1 },
 };
 
 /* layout(s) */
